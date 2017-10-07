@@ -1,17 +1,16 @@
-import tkinter as tk 
-import tkinter.messagebox
+import tkinter as tk
+import tkinter.messagebox 
 import random as rn
-class ticTacToe:
+class ticTacToe:    
     def __init__(self,master):
         global isAi,combinations,isWin
         isAi = tkinter.messagebox.askquestion('TTT','Do you want to play against AI ?')
         combinations=((0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6))
         isWin=False
-        def initBoard():
-            global board,current,occ
-            board=[tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar()]
-            current='X'
-            occ=0
+        global board,current,occ
+        board=[tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar(),tk.StringVar()]
+        current='X'
+        occ=0
         def switch():
             global current,occ
             if current=='X':
@@ -19,13 +18,18 @@ class ticTacToe:
             else:
                 current='X'
             occ+=1
+        def opposite():
+            global current
+            if current=='X':
+                return('O')
+            else:
+                return('X')
         def reset():
-            global board,occ,current,isWin
+            global board,occ,current
             for i in range(0,9):
                 board[i].set('')
             occ=0
             current='X'
-            isWin=False
         def winCheck():
             global combonations,board,occ
             for i in combinations:
@@ -41,42 +45,30 @@ class ticTacToe:
                 tkinter.messagebox.showinfo('TTT',"It's a Draw !")
                 reset()
         def AI(num):
-            global board,occ
-            corners=(0,2,6,8)
-            sides=(1,3,5,7,4)
+            global board,occ,combinations
+            toCheck=((0,1,2),(1,2,0),(0,2,1))
             isSet=False
-            if occ<9:
-                for i in corners:
-                    if num == i:
-                        for x in range(0,20):         
-                            aiChoice=rn.choice(sides)
-                            if board[aiChoice].get()!='X' and board[aiChoice].get()!='O':
-                                addSymbol(aiChoice,False)
-                                isSet=True
-                                break
-                for i in sides:
-                    if num == i:
-                        for x in range(0,20):
-                            aiChoice=rn.choice(corners)
-                            if board[aiChoice].get()!='X' and board[aiChoice].get()!='O':
-                                addSymbol(aiChoice,False)
-                                isSet=True
-                                break
-                while not isSet:
-                    aiChoice=rn.randint(0,8)
-                    if board[aiChoice].get()!='X' and board[aiChoice].get()!='O':
-                        addSymbol(aiChoice,False)
-                        isSet=True
+            for y in (current,opposite()):
+                for i in combinations:
+                    for x in toCheck:
+                        if board[i[x[0]]].get()==y and board[i[x[1]]].get()==y and board[i[x[2]]].get()!='X' and board[i[x[2]]].get()!='O':
+                            isSet=True
+                            addSymbol(i[x[2]],False)
+                            break
+                            
+            while not isSet:
+                aiChoice=rn.randint(0,8)
+                if board[aiChoice].get()!='X' and board[aiChoice].get()!='O':
+                    isSet=True
+                    addSymbol(aiChoice,False)
         def addSymbol(num,ai):
-            global board,current,isAi      
+            global board,current,isAi,occ      
             if board[num].get()!='X' and board[num].get()!='O':
                 board[num].set(current)
                 switch()
-                if isAi=='yes' and ai:
+                if isAi=='yes' and ai and occ<9: 
                     AI(num)
                 winCheck()
-                
-        initBoard()
         wid,hig=10,4
         tk.Button(master,textvariable=board[0],width=wid,height=hig,command=lambda:addSymbol(0,True)).grid(row=0,column=0)
         tk.Button(master,textvariable=board[1],width=wid,height=hig,command=lambda:addSymbol(1,True)).grid(row=0,column=1)
